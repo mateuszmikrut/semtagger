@@ -7,8 +7,8 @@ import argparse
 import logging
 import sys
 
-import git_tags
-from sem_ver import SemanticVersion
+import gittags
+from semver import SemanticVersion
 
 logger = logging.getLogger(__name__)
 

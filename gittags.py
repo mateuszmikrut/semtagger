@@ -13,7 +13,7 @@ except ImportError:
   print("Error: GitPython library is required. Install it with: pip install gitpython")
   sys.exit(1)
 
-from sem_ver import SemanticVersion
+from semver import SemanticVersion
 
 logger = logging.getLogger(__name__)
 
