@@ -80,17 +80,3 @@ The script supports semantic versioning with the following formats:
 
 When incrementing versions, prerelease labels are automatically removed.
 
-## How It Works
-
-1. Checks if the current directory is a git repository
-2. Warns if you're not on the main/master branch
-3. Optionally pulls latest changes from remote
-4. Finds the latest semantic version tag
-5. Increments the version based on your choice (major/minor/patch)
-6. Creates the new tag
-7. Optionally pushes the tag to remote
-
-## Requirements
-
-- Python 3.6+
-- GitPython library

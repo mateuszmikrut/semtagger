@@ -6,14 +6,13 @@ Semtagger - A tool for managing semantic version tags in git repositories
 import argparse
 import logging
 import sys
-
-import gittags
+from gitstuff import 
 from semver import SemanticVersion
 
 logger = logging.getLogger(__name__)
 
-
 def main():
+  """Main function for semtagger"""
   ########################
   ### Argument Parsing ###
   ########################
@@ -32,6 +31,7 @@ Examples:
   )
   parser.add_argument('-v', '--verbose', action='count', default=0, help='Verbosity (-v for INFO, -vv for DEBUG)')
   parser.add_argument('-f', '--force', action='store_true', default=False, help='Force the operation even if not on main/master branch')
+  parser.add_argument('-b', '--by', action='store', type=int, default=1, help='Increment by a specific number')
   
   version_group = parser.add_mutually_exclusive_group(required=True)
   version_group.add_argument('-p', '--patch', action='store_true', help='Increment patch version (x.x.PATCH)')
@@ -61,20 +61,20 @@ Examples:
   logger.debug(f"Arguments: {args}")
   
   ### Check if this is a git workspace ###
-  repo = git_tags.check_git_workspace()
+  repo = git_workspace()
   if repo is None:
     logger.error("Not a git repository. Exiting.")
     sys.exit(1)
   
   ## Check if on main/master branch (warning only)
-  if not git_tags.check_main_branch(repo):
+  if not gittags.check_main_branch(repo):
     logger.warning("You are not on the main/master branch.")
     if not args.force:
       logger.error("Use -f to force the operation on non-main/master branches.")
       sys.exit(2)
   
   ## Get latest tag
-  latest_tag = git_tags.get_latest_tag(repo)
+  latest_tag = gittags.get_latest_tag(repo)
   
   if latest_tag is None:
     # No tags found, start with 0.0.0
@@ -87,16 +87,16 @@ Examples:
       logger.error(f"Error parsing latest tag: {e}")
       sys.exit(1)
   
-  ### Increment version based on exclusive argument ###
+  ### Increment version ###
   if args.major:
     logger.debug("Incrementing major version")
-    current_version.increment_major()
+    current_version.increment_major(by=args.by)
   elif args.minor:
     logger.debug("Incrementing minor version")
-    current_version.increment_minor()
+    current_version.increment_minor(by=args.by)
   elif args.patch:
     logger.debug("Incrementing patch version")
-    current_version.increment_patch()
+    current_version.increment_patch(by=args.by)
   
   ### Label ###
   if args.label:
@@ -110,7 +110,7 @@ Examples:
   print(f"{new_tag}")
   
   ### Create tag and optionally push ###
-  if not git_tags.create_and_push_tag(repo, new_tag, push=args.push):
+  if not gittags.create_and_push_tag(repo, new_tag, push=args.push):
     sys.exit(1)
   
   logger.info("Done!")

@@ -1,5 +1,5 @@
 """
-Git tag management module
+Simple Git tag management module
 """
 
 import logging
@@ -17,8 +17,7 @@ from semver import SemanticVersion
 
 logger = logging.getLogger(__name__)
 
-
-def check_git_workspace(repo_path: str = ".") -> Optional[git.Repo]:
+def git_workspace(repo_path: str = ".") -> Optional[git.Repo]:
   """Check if current directory is a git workspace and return repo"""
   try:
     repo = git.Repo(Path(repo_path).resolve(), search_parent_directories=True)
@@ -30,6 +29,7 @@ def check_git_workspace(repo_path: str = ".") -> Optional[git.Repo]:
   except git.GitCommandError as e:
     logger.error(f"Git command failed: {e}")
     return None
+
 
 
 def check_main_branch(repo: git.Repo) -> bool:
@@ -46,20 +46,20 @@ def check_main_branch(repo: git.Repo) -> bool:
     return False
 
 
-def pull_from_remote(repo: git.Repo) -> bool:
-  """Pull latest changes from remote"""
-  try:
-    origin = repo.remote('origin')
-    logger.info(f"Pulling from remote '{origin.name}'...")
-    origin.pull()
-    logger.info("Successfully pulled latest changes")
-    return True
-  except git.GitCommandError as e:
-    logger.error(f"Error pulling from remote: {e}")
-    return False
-  except ValueError:
-    logger.warning("No remote named 'origin' found")
-    return False
+# def pull_from_remote(repo: git.Repo) -> bool:
+#   """Pull latest changes from remote"""
+#   try:
+#     origin = repo.remote('origin')
+#     logger.info(f"Pulling from remote '{origin.name}'...")
+#     origin.pull()
+#     logger.info("Successfully pulled latest changes")
+#     return True
+#   except git.GitCommandError as e:
+#     logger.error(f"Error pulling from remote: {e}")
+#     return False
+#   except ValueError:
+#     logger.warning("No remote named 'origin' found")
+#     return False
 
 
 def get_latest_tag(repo: git.Repo) -> Optional[str]:
