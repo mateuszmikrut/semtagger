@@ -56,6 +56,9 @@ venv.bak/
 *.swo
 *~
 
+# Linter
+.ansible/
+
 # OS
 .DS_Store
 Thumbs.db
