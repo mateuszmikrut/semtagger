@@ -20,13 +20,7 @@ def main():
   parser = argparse.ArgumentParser(
     description='SemTag - Manage semantic version tags in git repositories',
     formatter_class=argparse.RawDescriptionHelpFormatter,
-    epilog="""
-Examples:
-  %(prog)s -m              # Increment minor version (1.0.0 -> 1.1.0)
-  %(prog)s -M              # Increment major version (1.0.0 -> 2.0.0)
-  %(prog)s -p -b 5         # Increment patch version by 5 (1.0.0 -> 1.0.5)
-  %(prog)s -p -l rc1       # Increment patch and add label (1.0.0 -> 1.0.1-rc1)
-        """
+    epilog="\n"
   )
   parser.add_argument('-v', '--verbose', action='count', default=0, help='Verbosity (-v for INFO, -vv for DEBUG)')
   # parser.add_argument('-f', '--force', action='store_true', default=False, help='Force the operation even if not on main/master branch')
