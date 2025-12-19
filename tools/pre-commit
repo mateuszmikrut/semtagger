@@ -2,12 +2,13 @@
 # Pre-commit hook to generate README.md options from script argparse help
 
 ### Install pre-commit hook:
-# ln -s ./tools/pre-commit/pre-commit .git/hooks/pre-commit
+# ln -s ../../tools/pre-commit .git/hooks/pre-commit
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
 
 # Check if semtag.py has been modified
-if git diff --cached --name-only | grep -q 'semtag\.py'; then
+echo "Pre-commit hook running..."
+if git diff --cached --name-only | grep -q semtag.py; then
   echo "Updating README.md options..."
   cd "$REPO_ROOT" || exit 1
 
