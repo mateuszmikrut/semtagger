@@ -31,7 +31,7 @@ def main():
   version_group.add_argument('-M', '--major', action='store_true', help='Increment major version (MAJOR.0.0)')
   
   parser.add_argument('-l', '--label', type=str, default=None, help='Add label to the version (e.g., -l rc1 creates 1.0.0-rc1)')
-  parser.add_argument('-a', '--annotated', type=str, help='Annotated tags message, when skipped creates lightweight tag', default=None)
+  parser.add_argument('-a', '--msg', type=str, help='Annotated tags message', default=None)
   parser.add_argument('-u', '--push', action='store_true', help='Push the new tag to remote repository', default=False)
   parser.add_argument('-U', '--pushall', action='store_true', help='Push all local tags to remote repository', default=False)
   parser.add_argument('-n', '--no-fetch', action='store_true', help='Do not fetch tags from remote before operation', default=False)

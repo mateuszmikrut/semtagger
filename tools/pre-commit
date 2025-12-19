@@ -1,0 +1,35 @@
+#!/bin/bash
+# Pre-commit hook to generate README.md options from script argparse help
+
+# ln -s ./tools/pre-commit/pre-commit .git/hooks/pre-commit
+
+REPO_ROOT=$(git rev-parse --show-toplevel)
+# no --version argumetn on macOS
+if sed --version >/dev/null 2>&1; then
+  # GNU sed 
+  SED_INPLACE=(-i)
+else
+  # BSD sed 
+  SED_INPLACE=(-i '')
+fi
+
+# Check if semtag.py has been modified
+if git diff --cached --name-only | grep -q 'semtag\.py'; then
+    echo "Updating README.md options..."
+    cd "$REPO_ROOT" || exit 1
+    
+    sed "${SED_INPLACE[@]}" "/<!-- OPTIONS:START -->/,/<!-- OPTIONS:END -->/c\
+    <!-- OPTIONS:START -->\
+    ${python semtag.py --help 2>&1 | sed -n '/^options:/,/^$/p' | tail -n +2}\
+    <!-- OPTIONS:END -->" file.md
+    
+    if [ $? -eq 0 ]; then
+        git add README.md
+        echo "README.md options updated and staged"
+    else
+        echo "Failed to update README.md"
+        exit 1
+    fi
+fi
+
+exit 0
