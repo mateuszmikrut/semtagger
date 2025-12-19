@@ -122,9 +122,9 @@ def main():
     
   ### Create tag
   try:
-    if args.annotated:
-      logger.debug(f"Creating annotated tag '{new_tag}' with message: {args.annotated}")
-      repo.create_tag(new_tag, message=args.annotated)
+    if args.msg:
+      logger.debug(f"Creating annotated tag '{new_tag}' with message: {args.msg}")
+      repo.create_tag(new_tag, message=args.msg)
     else:
       logger.debug(f"Creating lightweight tag '{new_tag}'")
       repo.create_tag(new_tag)
