@@ -14,9 +14,8 @@ logger = logging.getLogger(__name__)
 
 def main():
   """ Main function """
-  ########################
-  ### Argument Parsing ###
-  ########################
+  
+  ### Arguments
   parser = argparse.ArgumentParser(
     description='SemTag - Manage semantic version tags in git repositories',
     formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -32,12 +31,13 @@ def main():
   version_group.add_argument('-M', '--major', action='store_true', help='Increment major version (MAJOR.0.0)')
   
   parser.add_argument('-l', '--label', type=str, default=None, help='Add label to the version (e.g., -l rc1 creates 1.0.0-rc1)')
+  parser.add_argument('-a', '--annotated', type=str, help='Annotated tags message, when skipped creates lightweight tag', default=None)
   parser.add_argument('-u', '--push', action='store_true', help='Push the new tag to remote repository', default=False)
   parser.add_argument('-U', '--pushall', action='store_true', help='Push all local tags to remote repository', default=False)
   parser.add_argument('-n', '--no-fetch', action='store_true', help='Do not fetch tags from remote before operation', default=False)
   args = parser.parse_args()
   
-  ### Logging based on verbosity ###
+  ### Logging based on verbosity 
   if args.verbose == 0:
     log_level = logging.WARNING
   elif args.verbose == 1:
@@ -49,14 +49,12 @@ def main():
     level=log_level,
     format='%(message)s' # Keep it simple (no timestamps, severity etc.)
   )
-  
-  ##################
-  ### Main Logic ###
-  ##################
+
+  ### Main Logic 
   logger.debug(f"Arguments: {args}")
   pwd = Path('.').resolve()
 
-  ### Check if this is a git workspace ###
+  ### Check if this is a git workspace 
   try:
     repo = git.Repo(pwd, search_parent_directories=True)
     logger.debug(f"Found git repository at {repo.working_dir}")
@@ -79,8 +77,7 @@ def main():
   #   logger.warning("HEAD is detached, not on any branch")
   #   exit(2)
   
-
-  # Fetch tags from remote to avoid duplicates
+  ### Fetch tags from remote to avoid duplicates
   if not args.no_fetch:
     try:
       logger.debug("Fetching tags from remote...")
@@ -88,22 +85,23 @@ def main():
       logger.info("Tags fetched successfully")
     except Exception as e:
       logger.warning(f"Error fetching tags: {e}")
-    
-  logger.debug(f"Tags in repository: {repo.tags}")
+
+  ### Sort and filter semantic tags 
+  logger.debug(f"All tags in repository: {repo.tags}")
   tags = semsort([tag.name for tag in repo.tags])
   logger.debug(f"Sorted semantic tags: {tags}")
+  
+  ### No tags case
   if tags:
     latest_tag = tags[0]
     logger.info(f"Latest semantic version tag: {latest_tag}")
   else:
-    # No tags found, start with 0.0.0
-    logger.info("No semantic version tags found. Starting with 0.0.0")
     latest_tag = '0.0.0'
+    logger.info("No semantic version tags found. Starting with 0.0.0")
     
-  # Initialize obj
   current_version = SemanticVersion(latest_tag)
   
-  ### Increment version ###
+  ### Increment version 
   if args.major:
     logger.debug("Incrementing major version")
     current_version.inc_major(by=args.by)
@@ -114,7 +112,7 @@ def main():
     logger.debug("Incrementing patch version")
     current_version.inc_patch(by=args.by)
   
-  ### Label ###
+  ### Label 
   if args.label:
     logger.debug(f"Adding label: {args.label}")
     current_version.add_label(args.label)
@@ -122,14 +120,18 @@ def main():
   new_tag = str(current_version)
   logger.debug(f"Generated new tag: {new_tag}")
     
-  ### Create and push
+  ### Create tag
   try:
-    #TODO: add tag message option later
-    #repo.create_tag(new_tag, message=f"Release {new_tag}")
-    repo.create_tag(new_tag)
+    if args.annotated:
+      logger.debug(f"Creating annotated tag '{new_tag}' with message: {args.annotated}")
+      repo.create_tag(new_tag, message=args.annotated)
+    else:
+      logger.debug(f"Creating lightweight tag '{new_tag}'")
+      repo.create_tag(new_tag)
+  
     logger.info(f"Successfully created tag: {new_tag}")
     
-    # Push if requested
+    ### Push 
     if args.pushall:
       logger.debug("Pushing all local tags to remote...")
       repo.remote('origin').push(tags=True)
@@ -145,7 +147,7 @@ def main():
   except Exception as e:
     logger.error(f"Error: {e}")  
 
-  # Print the new tag to stout as confirmation if not verbose
+  ### Print the new tag to stout as confirmation if not verbose
   if args.verbose == 0:
     GREEN = '\033[92m'
     YELLOW = '\033[93m'
